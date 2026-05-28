@@ -26,7 +26,7 @@ const Dashboard = () => {
     if (start) start();
     setLoadingPosts(true);
     try {
-      const res = await axios.get("http://localhost:8000/api/myposts", {
+      const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/myposts`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -75,7 +75,7 @@ const Dashboard = () => {
     try {
       if (start) start();
       const token = localStorage.getItem("blogifyToken");
-      await axios.delete(`http://localhost:8000/api/myposts/${postId}`, {
+      await axios.delete(`${import.meta.env.VITE_API_URL}/api/myposts/${postId}`, {
         headers: {
           Authorization: token ? `Bearer ${token}` : undefined,
         },

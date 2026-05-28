@@ -44,7 +44,7 @@ const Loginpage = () => {
     setLoading(true);
 
     try {
-      const res = await fetch("http://localhost:8000/api/login", {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/login`, {
         method: "POST",
         credentials: "include",
         headers: {
@@ -73,7 +73,7 @@ const Loginpage = () => {
   };
 
   const handleGoogleLogin = () => {
-    window.location.href = "http://localhost:8000/auth/google";
+    window.location.href = `${import.meta.env.VITE_API_URL}/auth/google`;
   };
 
   return (

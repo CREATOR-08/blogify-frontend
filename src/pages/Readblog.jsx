@@ -22,7 +22,7 @@ const Readblog = () => {
 
       try {
         const token = localStorage.getItem("blogifyToken");
-        const url = query ? `http://localhost:8000/api/readblogs?q=${encodeURIComponent(query)}` : "http://localhost:8000/api/readblogs";
+        const url = query ? `${import.meta.env.VITE_API_URL}/api/readblogs?q=${encodeURIComponent(query)}` : `${import.meta.env.VITE_API_URL}/api/readblogs`;
         const res = await axios.get(url, {
           headers: {
             Authorization: token ? `Bearer ${token}` : undefined,

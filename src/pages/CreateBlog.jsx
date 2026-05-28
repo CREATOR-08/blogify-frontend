@@ -42,7 +42,7 @@ const CreateBlog = () => {
         setLoading(true);
         try {
           const token = localStorage.getItem("blogifyToken");
-          const res = await axios.get(`http://localhost:8000/api/myposts/${id}`, {
+          const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/myposts/${id}`, {
             headers: {
               Authorization: token ? `Bearer ${token}` : undefined,
             },
@@ -106,7 +106,7 @@ const CreateBlog = () => {
         ageRestriction: details.ageRestriction,
         content,
       };
-      const url = isEdit && id ? `http://localhost:8000/api/myposts/${id}` : "http://localhost:8000/api/createpost";
+      const url = isEdit && id ? `${import.meta.env.VITE_API_URL}/api/myposts/${id}` : `${import.meta.env.VITE_API_URL}/api/createpost`;
       const response = isEdit
         ? await axios.put(url, body, {
             headers: {

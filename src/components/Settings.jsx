@@ -52,7 +52,7 @@ const Settings = ({ isOpen, onClose }) => {
     if (start) start();
     try {
       const res = await axios.post(
-        "http://localhost:8000/api/user/switch-account",
+        `${import.meta.env.VITE_API_URL}/api/user/switch-account`,
         { targetUsername, password },
         {
           headers: {
@@ -85,7 +85,7 @@ const Settings = ({ isOpen, onClose }) => {
     setMessage(null);
 
     try {
-      await axios.delete("http://localhost:8000/api/user", {
+      await axios.delete(`${import.meta.env.VITE_API_URL}/api/user`, {
         headers: {
           Authorization: token ? `Bearer ${token}` : undefined,
         },
@@ -125,7 +125,7 @@ const Settings = ({ isOpen, onClose }) => {
 
     try {
       const res = await axios.post(
-        "http://localhost:8000/api/user/change-password",
+        `${import.meta.env.VITE_API_URL}/api/user/change-password`,
         { currentPassword, newPassword },
         {
           headers: {

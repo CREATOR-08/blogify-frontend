@@ -24,7 +24,7 @@ const ReadblogDetail = () => {
 
       try {
         const token = localStorage.getItem("blogifyToken");
-        const postRes = await axios.get(`http://localhost:8000/api/readblogs/${id}`, {
+        const postRes = await axios.get(`${import.meta.env.VITE_API_URL}/api/readblogs/${id}`, {
           headers: {
             Authorization: token ? `Bearer ${token}` : undefined,
           },
@@ -53,7 +53,7 @@ const ReadblogDetail = () => {
       try {
         const token = localStorage.getItem("blogifyToken");
         await axios.post(
-          `http://localhost:8000/api/readblogs/${id}/viewed`,
+          `${import.meta.env.VITE_API_URL}/api/readblogs/${id}/viewed`,
           {},
           {
             headers: {
@@ -120,7 +120,7 @@ const ReadblogDetail = () => {
                     if (start) start();
                     const token = localStorage.getItem("blogifyToken");
                     const res = await axios.post(
-                      `http://localhost:8000/api/readblogs/${id}/like`,
+                      `${import.meta.env.VITE_API_URL}/api/readblogs/${id}/like`,
                       {},
                       {
                         headers: {
@@ -155,9 +155,9 @@ const ReadblogDetail = () => {
                     if (start) start();
                     const token = localStorage.getItem("blogifyToken");
                     const endpoint = isSubscribed 
-                      ? `http://localhost:8000/api/readblogs/${id}/unsubscribe`
-                      : `http://localhost:8000/api/readblogs/${id}/subscribe`;
-                    
+                      ? `${import.meta.env.VITE_API_URL}/api/readblogs/${id}/unsubscribe`
+                      : `${import.meta.env.VITE_API_URL}/api/readblogs/${id}/subscribe`;
+
                     const res = await axios.post(
                       endpoint,
                       {},
