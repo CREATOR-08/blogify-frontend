@@ -18,7 +18,7 @@ const Footer = () => {
         <div className="space-y-4">
           <h3 className="text-xl font-semibold text-white">Quick Links</h3>
           <ul className="space-y-3 text-slate-400">
-            <li><a href="/createblog" className="hover:text-white">Start a Blog</a></li>
+            <li><a href="/editor" className="hover:text-white">Start a Blog</a></li>
             <li><a href="/readblog" className="hover:text-white">Explore Vlogs</a></li>
             <li><a href="/signup" className="hover:text-white">Create Account</a></li>
             <li><a href="/login" className="hover:text-white">Log In</a></li>

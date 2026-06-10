@@ -39,7 +39,7 @@ const MainHome = () => {
 
           <div className="flex flex-col gap-4 sm:flex-row  justify-center">
             <button
-              onClick={() => navigate('/createblog')}
+              onClick={() => navigate('/editor')}
               className="rounded-full bg-cyan-500 px-8 py-4 text-sm font-semibold text-slate-950 transition hover:bg-cyan-400"
             >
               Start a Blog

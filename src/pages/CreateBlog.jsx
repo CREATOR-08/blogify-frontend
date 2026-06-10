@@ -1,8 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useNavigate, useLocation, useParams } from "react-router-dom";
 import axios from "axios";
 import Dashnav from "../components/Dashnav";
+import CurrentEventsPanel from "../components/CurrentEventsPanel";
 import { useLoading } from "../context/LoadingContext";
+import { fetchCurrentEvents } from "../utils/api";
 
 const CreateBlog = () => {
   const location = useLocation();
@@ -19,8 +21,30 @@ const CreateBlog = () => {
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [eventsPanelOpen, setEventsPanelOpen] = useState(false);
+  const [selectedCountry, setSelectedCountry] = useState("Worldwide");
+  const [eventsData, setEventsData] = useState(null);
+  const [eventsLoading, setEventsLoading] = useState(false);
+  const [eventsError, setEventsError] = useState(null);
   const navigate = useNavigate();
   const { start, done } = useLoading();
+
+  const loadCurrentEvents = useCallback(
+    async (country = selectedCountry) => {
+      setEventsLoading(true);
+      setEventsError(null);
+
+      try {
+        const response = await fetchCurrentEvents(country);
+        setEventsData(response.data);
+      } catch (err) {
+        setEventsError(err.response?.data?.message || err.message || "Failed to load current events.");
+      } finally {
+        setEventsLoading(false);
+      }
+    },
+    [selectedCountry]
+  );
 
   useEffect(() => {
     if (isEdit) {
@@ -69,7 +93,15 @@ const CreateBlog = () => {
         fetchPost();
       }
     }
-  }, [id, isEdit, location.state]);
+  }, [done, id, isEdit, location.state, start]);
+
+  useEffect(() => {
+    if (!eventsPanelOpen) {
+      return;
+    }
+
+    loadCurrentEvents(selectedCountry);
+  }, [eventsPanelOpen, selectedCountry, loadCurrentEvents]);
 
   const handleDetailsSubmit = (e) => {
     e.preventDefault();
@@ -144,7 +176,7 @@ const CreateBlog = () => {
   return (
     <div className="min-h-screen bg-slate-950 text-white">
       <Dashnav />
-      <main className="mx-auto max-w-5xl p-8">
+      <main className={`mx-auto max-w-6xl p-8 transition-[padding] duration-300 ${eventsPanelOpen ? "lg:pr-[28rem]" : ""}`}>
         <div className="mb-8 flex flex-wrap items-center gap-4">
           <button
             className="rounded-xl bg-sky-500 px-4 py-2 text-sm font-semibold text-white hover:bg-sky-400"
@@ -152,7 +184,14 @@ const CreateBlog = () => {
           >
             Dashboard
           </button>
-          <h1 className="text-3xl font-bold">Create New Blog</h1>
+          <h1 className="text-3xl font-bold">Blog Editor</h1>
+          <button
+            type="button"
+            onClick={() => setEventsPanelOpen(true)}
+            className="rounded-xl border border-cyan-400/40 bg-cyan-500/10 px-4 py-2 text-sm font-semibold text-cyan-200 transition hover:bg-cyan-500/20"
+          >
+            Open current events
+          </button>
         </div>
 
         {success && <div className="mb-6 rounded-3xl bg-emerald-500/10 p-4 text-emerald-200">{success}</div>}
@@ -270,6 +309,18 @@ const CreateBlog = () => {
           </div>
         )}
       </main>
+
+      <CurrentEventsPanel
+        isOpen={eventsPanelOpen}
+        onOpen={() => setEventsPanelOpen(true)}
+        onClose={() => setEventsPanelOpen(false)}
+        country={selectedCountry}
+        onCountryChange={setSelectedCountry}
+        onRefresh={() => loadCurrentEvents(selectedCountry)}
+        loading={eventsLoading}
+        error={eventsError}
+        data={eventsData}
+      />
     </div>
   );
 };

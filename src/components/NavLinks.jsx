@@ -8,7 +8,7 @@ const NavLinks = ({ onOpenSettings }) => {
     { label: "Home", path: "/" },
     { label: "Dashboard", path: "/dashboard" },
     { label: "Read Blogs", path: "/readblog" },
-    { label: "Create Blog", path: "/createblog" },
+    { label: "Create Blog", path: "/editor" },
   ];
 
   return (

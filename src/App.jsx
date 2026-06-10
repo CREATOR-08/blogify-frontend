@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Home from "./pages/Home";
 import Signup from "./pages/Signup";
 import Loginpage from "./pages/Loginpage";
@@ -19,7 +19,9 @@ function App() {
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/readblog" element={<Readblog />} />
           <Route path="/readblog/:id" element={<ReadblogDetail />} />
-          <Route path="/createblog" element={<CreateBlog />} />
+          <Route path="/editor" element={<CreateBlog />} />
+          <Route path="/editor/:id" element={<CreateBlog />} />
+          <Route path="/createblog" element={<Navigate to="/editor" replace />} />
           <Route path="/editblog/:id" element={<CreateBlog />} />
         </Routes>
       </LoadingProvider>

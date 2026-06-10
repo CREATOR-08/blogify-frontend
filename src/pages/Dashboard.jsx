@@ -13,7 +13,7 @@ const Dashboard = () => {
   const navigate = useNavigate();
 
   const [Posts, setPosts] = useState([]);
-  const [username, setUsername] = useState("");
+  const [username, setUsername] = useState(localStorage.getItem("blogifyUsername") || "");
   const [stats, setStats] = useState({ totalLikes: 0, subscriberCount: 0 });
   const [loadingPosts, setLoadingPosts] = useState(false);
   const { start, done } = useLoading();
@@ -32,7 +32,11 @@ const Dashboard = () => {
         },
         withCredentials: true,
       });
-      setUsername(res.data.username || "");
+      const responseUsername = res.data.username || localStorage.getItem("blogifyUsername") || "";
+      setUsername(responseUsername);
+      if (responseUsername && !localStorage.getItem("blogifyUsername")) {
+        localStorage.setItem("blogifyUsername", responseUsername);
+      }
       setPosts(res.data.posts || []);
       setStats(res.data.stats || { totalLikes: 0, subscriberCount: 0 });
     } catch (error) {
@@ -40,6 +44,7 @@ const Dashboard = () => {
       if (error.response?.status === 401 || error.response?.status === 403) {
         localStorage.removeItem("blogifyToken");
         localStorage.removeItem("isLoggedIn");
+        localStorage.removeItem("blogifyUsername");
         navigate("/login");
       }
       setPosts([]);
@@ -62,7 +67,7 @@ const Dashboard = () => {
   const handleEdit = (post) => {
     const postId = post.id;
     if (!postId) return;
-    navigate(`/editblog/${postId}`, { state: { post, isEdit: true } });
+    navigate(`/editor/${postId}`, { state: { post, isEdit: true } });
   };
 
   const handleDelete = async (post) => {
@@ -109,7 +114,7 @@ const Dashboard = () => {
           </button>
           <button
             className="rounded-full bg-emerald-500 px-5 py-2 text-sm font-semibold text-white hover:bg-emerald-400"
-            onClick={() => navigate('/createblog')}
+            onClick={() => navigate('/editor')}
           >
             Create New Blog
           </button>

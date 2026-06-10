@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 import { useLoading } from "../context/LoadingContext";
 
 const Signup = () => {
@@ -13,11 +14,44 @@ const Signup = () => {
   const navigate = useNavigate();
   const { start, done } = useLoading();
 
+  // Handle Google OAuth callback
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const token = urlParams.get('token');
+    const username = urlParams.get('user');
+    const googleAuth = urlParams.get('googleAuth');
+
+    if (token) {
+      localStorage.setItem("blogifyToken", token);
+      localStorage.setItem("isLoggedIn", "true");
+      if (username) {
+        localStorage.setItem("blogifyUsername", decodeURIComponent(username));
+      }
+      navigate("/dashboard");
+      return;
+    }
+
+    const googleError = urlParams.get('error');
+    if (googleError) {
+      setError(decodeURIComponent(googleError));
+      window.history.replaceState(null, "", window.location.pathname);
+    }
+  }, [navigate]);
+
   const handleChange = (e) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
     });
+  };
+
+  const handleGoogleSignup = () => {
+    const backendUrl = import.meta.env.VITE_API_URL;
+    if (!backendUrl) {
+      setError("Backend URL is not configured. Please check your environment variables.");
+      return;
+    }
+    window.location.href = `${backendUrl}/auth/google`;
   };
 
   const handleSubmit = async (e) => {
@@ -27,24 +61,25 @@ const Signup = () => {
 
     if (start) start();
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/signup`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      });
+      const res = await axios.post(
+        `${import.meta.env.VITE_API_URL}/api/signup`,
+        formData,
+        {
+          withCredentials: true,
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
-      const data = await res.json();
-
-      if (res.status === 200) {
+      if (res.status === 200 || res.status === 201) {
         setSuccess("Account created successfully. Redirecting to login...");
         setTimeout(() => navigate("/login"), 1200);
       } else {
-        setError(data.error || data.message || "Signup failed. Please try again.");
+        setError(res.data.error || res.data.message || "Signup failed. Please try again.");
       }
     } catch (err) {
-      setError(err.message || "Signup failed. Please try again.");
+      setError(err.response?.data?.error || err.response?.data?.message || err.message || "Signup failed. Please try again.");
     } finally {
       if (done) done();
     }
@@ -62,6 +97,23 @@ const Signup = () => {
             </div>
 
             <form className="space-y-5" onSubmit={handleSubmit}>
+              <button
+                type="button"
+                onClick={handleGoogleSignup}
+                className="w-full rounded-full border border-slate-700 bg-slate-900 px-6 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 mb-4"
+              >
+                Sign up with Google
+              </button>
+
+              <div className="relative mb-6">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-slate-600"></div>
+                </div>
+                <div className="relative flex justify-center text-sm">
+                  <span className="bg-slate-900 px-2 text-slate-400">Or continue with email</span>
+                </div>
+              </div>
+
               <div>
                 <label className="mb-2 block text-sm font-medium text-slate-200">Name</label>
                 <input

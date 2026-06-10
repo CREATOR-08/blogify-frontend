@@ -33,6 +33,7 @@ const Settings = ({ isOpen, onClose }) => {
   const handleLogout = () => {
     localStorage.removeItem("blogifyToken");
     localStorage.removeItem("isLoggedIn");
+    localStorage.removeItem("blogifyUsername");
     handleClose();
     navigate("/login");
   };

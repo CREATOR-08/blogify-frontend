@@ -15,17 +15,21 @@ const Loginpage = () => {
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const token = urlParams.get('token');
-    const googleError = urlParams.get('googleError');
+    const username = urlParams.get('user');
+    const googleError = urlParams.get('error');
 
     if (token) {
       localStorage.setItem("blogifyToken", token);
       localStorage.setItem("isLoggedIn", "true");
+      if (username) {
+        localStorage.setItem("blogifyUsername", decodeURIComponent(username));
+      }
       navigate("/dashboard");
       return;
     }
 
     if (googleError) {
-      setError(googleError);
+      setError(decodeURIComponent(googleError));
       window.history.replaceState(null, "", window.location.pathname);
     }
   }, [navigate]);
@@ -60,6 +64,9 @@ const Loginpage = () => {
           localStorage.setItem("blogifyToken", data.token);
         }
         localStorage.setItem("isLoggedIn", "true");
+        if (data.username) {
+          localStorage.setItem("blogifyUsername", data.username);
+        }
         navigate("/dashboard");
       } else {
         setError(data.error || data.message || "Login failed. Please try again.");
@@ -73,7 +80,12 @@ const Loginpage = () => {
   };
 
   const handleGoogleLogin = () => {
-    window.location.href = `${import.meta.env.VITE_API_URL}/auth/google`;
+    const backendUrl = import.meta.env.VITE_API_URL;
+    if (!backendUrl) {
+      setError("Backend URL is not configured. Please check your environment variables.");
+      return;
+    }
+    window.location.href = `${backendUrl}/auth/google`;
   };
 
   return (
