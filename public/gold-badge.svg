@@ -1,0 +1,19 @@
+<svg width="128" height="128" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="goldGrad" x1="24" y1="18" x2="104" y2="110" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFF3B0"/>
+      <stop offset="0.44" stop-color="#F4C94A"/>
+      <stop offset="1" stop-color="#A66B13"/>
+    </linearGradient>
+    <radialGradient id="goldGlow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(54 43) rotate(50) scale(50 54)">
+      <stop stop-color="#FFF9E5" stop-opacity="0.98"/>
+      <stop offset="1" stop-color="#FFF9E5" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <path d="M64 10L102 32V72C102 94.0914 85.0914 112 64 120C42.9086 112 26 94.0914 26 72V32L64 10Z" fill="url(#goldGrad)"/>
+  <path d="M64 19L91 35.5V69C91 85.2241 80.56 100.152 64 106C47.44 100.152 37 85.2241 37 69V35.5L64 19Z" fill="#FFF5B4" fill-opacity="0.25"/>
+  <circle cx="64" cy="56" r="26" fill="url(#goldGlow)"/>
+  <path d="M64 39L70.54 50.444L83.5 52.64L74.25 61.861L76.36 75.2L64 68.8L51.64 75.2L53.75 61.861L44.5 52.64L57.46 50.444L64 39Z" fill="#FFFDF0"/>
+  <path d="M42 28L32 40V70C32 84.132 41.39 99.118 56 108" stroke="#FFF4BF" stroke-opacity="0.48" stroke-width="4" stroke-linecap="round"/>
+  <path d="M86 28L96 40V70C96 84.132 86.61 99.118 72 108" stroke="#FFF4BF" stroke-opacity="0.3" stroke-width="4" stroke-linecap="round"/>
+</svg>

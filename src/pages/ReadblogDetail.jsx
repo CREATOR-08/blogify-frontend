@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
-import Dashnav from "../components/Dashnav";
+import Dashnav from "../components/Dashboard/Dashnav";
 import { useLoading } from "../context/LoadingContext";
 
 const ReadblogDetail = () => {

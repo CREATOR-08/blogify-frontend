@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { useLoading } from "../context/LoadingContext";
+import { useLoading } from "../../context/LoadingContext";
 
 const Settings = ({ isOpen, onClose }) => {
   const [mode, setMode] = useState("main");

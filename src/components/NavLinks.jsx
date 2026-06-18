@@ -16,14 +16,14 @@ const NavLinks = ({ onOpenSettings }) => {
       {links.map((link) => (
         <h1
           key={link.path}
-          className="cursor-pointer text-gray-500 hover:text-white transition"
+          className="cursor-pointer text-slate-400 hover:text-white transition"
           onClick={() => navigate(link.path)}
         >
           {link.label}
         </h1>
       ))}
       <h1
-        className="cursor-pointer text-gray-500 hover:text-white transition"
+        className="cursor-pointer text-slate-400 hover:text-white transition"
         onClick={onOpenSettings}
       >
         Settings

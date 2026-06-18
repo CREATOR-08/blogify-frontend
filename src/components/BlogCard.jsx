@@ -7,8 +7,8 @@ const BlogCard = ({ post }) => {
 
   return (
     <article
-      className={`rounded-3xl border border-slate-700 bg-slate-900 p-6 shadow-lg shadow-black/30 ${
-        postId ? "cursor-pointer hover:border-sky-500" : ""
+      className={`rounded-3xl border border-slate-700 bg-slate-900 p-6 shadow-lg shadow-black/30 hover:bg-slate-800 transition ${
+        postId ? "cursor-pointer hover:border-cyan-400" : ""
       }`}
     >
       <div className="flex flex-wrap items-center justify-between gap-4 mb-4">

@@ -1,0 +1,21 @@
+<svg width="128" height="128" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="diamondGrad" x1="20" y1="14" x2="108" y2="114" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F1FDFF"/>
+      <stop offset="0.42" stop-color="#7EE7FF"/>
+      <stop offset="0.72" stop-color="#4FA6FF"/>
+      <stop offset="1" stop-color="#2F4AA4"/>
+    </linearGradient>
+    <radialGradient id="diamondGlow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(58 42) rotate(50) scale(54 56)">
+      <stop stop-color="#FFFFFF" stop-opacity="0.99"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <path d="M64 8L99 28L111 55L64 121L17 55L29 28L64 8Z" fill="url(#diamondGrad)"/>
+  <path d="M64 18L90 34L98 55L64 109L30 55L38 34L64 18Z" fill="#D8FBFF" fill-opacity="0.24"/>
+  <circle cx="64" cy="54" r="26" fill="url(#diamondGlow)"/>
+  <path d="M64 34L73.8 45.2L87 48L77 57.6L79.2 71L64 63.8L48.8 71L51 57.6L41 48L54.2 45.2L64 34Z" fill="#FFFFFF"/>
+  <path d="M64 20L77 40L64 63.8L51 40L64 20Z" fill="#FFFFFF" fill-opacity="0.24"/>
+  <path d="M42 28L32 40V70C32 84.132 41.39 99.118 56 108" stroke="#E7FDFF" stroke-opacity="0.4" stroke-width="4" stroke-linecap="round"/>
+  <path d="M86 28L96 40V70C96 84.132 86.61 99.118 72 108" stroke="#E7FDFF" stroke-opacity="0.28" stroke-width="4" stroke-linecap="round"/>
+</svg>

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useLoading } from "../context/LoadingContext";
 import { useNavigate, useLocation } from "react-router-dom";
-import Dashnav from "../components/Dashnav";
+import Dashnav from "../components/Dashboard/Dashnav";
 import BlogCard from "../components/BlogCard";
 
 const Readblog = () => {

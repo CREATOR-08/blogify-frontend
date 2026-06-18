@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { useNavigate, useLocation, useParams } from "react-router-dom";
 import axios from "axios";
-import Dashnav from "../components/Dashnav";
+import Dashnav from "../components/Dashboard/Dashnav";
 import CurrentEventsPanel from "../components/CurrentEventsPanel";
 import { useLoading } from "../context/LoadingContext";
 import { fetchCurrentEvents } from "../utils/api";
