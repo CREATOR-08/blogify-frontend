@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState, useRef } from "react";
 import { useNavigate, useLocation, useParams } from "react-router-dom";
 import axios from "axios";
 import Dashnav from "../components/Dashboard/Dashnav";
@@ -21,11 +21,17 @@ const CreateBlog = () => {
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [eventsPanelOpen, setEventsPanelOpen] = useState(false);
+  const [eventsPanelOpen, setEventsPanelOpen] = useState(true); // Open by default for better utility view
   const [selectedCountry, setSelectedCountry] = useState("Worldwide");
   const [eventsData, setEventsData] = useState(null);
   const [eventsLoading, setEventsLoading] = useState(false);
   const [eventsError, setEventsError] = useState(null);
+  
+  // Media Modal States
+  const [mediaModal, setMediaModal] = useState({ isOpen: false, type: "" });
+  const [mediaUrl, setMediaUrl] = useState("");
+  
+  const textareaRef = useRef(null);
   const navigate = useNavigate();
   const { start, done } = useLoading();
 
@@ -96,10 +102,7 @@ const CreateBlog = () => {
   }, [done, id, isEdit, location.state, start]);
 
   useEffect(() => {
-    if (!eventsPanelOpen) {
-      return;
-    }
-
+    if (!eventsPanelOpen) return;
     loadCurrentEvents(selectedCountry);
   }, [eventsPanelOpen, selectedCountry, loadCurrentEvents]);
 
@@ -141,15 +144,11 @@ const CreateBlog = () => {
       const url = isEdit && id ? `${import.meta.env.VITE_API_URL}/api/myposts/${id}` : `${import.meta.env.VITE_API_URL}/api/createpost`;
       const response = isEdit
         ? await axios.put(url, body, {
-            headers: {
-              Authorization: token ? `Bearer ${token}` : undefined,
-            },
+            headers: { Authorization: token ? `Bearer ${token}` : undefined },
             withCredentials: true,
           })
         : await axios.post(url, body, {
-            headers: {
-              Authorization: token ? `Bearer ${token}` : undefined,
-            },
+            headers: { Authorization: token ? `Bearer ${token}` : undefined },
             withCredentials: true,
           });
 
@@ -173,114 +172,229 @@ const CreateBlog = () => {
     }
   };
 
+  // Media Insertion Handler
+  const insertMediaTag = (e) => {
+    e.preventDefault();
+    if (!mediaUrl.trim()) return;
+
+    const tag = mediaModal.type === "image" ? `![Image](${mediaUrl})` : `![Video](${mediaUrl})`;
+    const textarea = textareaRef.current;
+
+    if (textarea) {
+      const startPos = textarea.selectionStart;
+      const endPos = textarea.selectionEnd;
+      const newContent = content.substring(0, startPos) + tag + content.substring(endPos, content.length);
+      setContent(newContent);
+    } else {
+      setContent((prev) => prev + "\n" + tag);
+    }
+
+    setMediaUrl("");
+    setMediaModal({ isOpen: false, type: "" });
+  };
+
   return (
-    <div className="min-h-screen bg-slate-950 text-white">
+    <div className="min-h-screen bg-slate-950 text-slate-100 font-sans selection:bg-sky-500/30">
       <Dashnav />
-      <main className={`mx-auto max-w-6xl p-8 transition-[padding] duration-300 ${eventsPanelOpen ? "lg:pr-[28rem]" : ""}`}>
-        <div className="mb-8 flex flex-wrap items-center gap-4">
-          <button
-            className="rounded-xl bg-sky-500 px-4 py-2 text-sm font-semibold text-white hover:bg-sky-400"
-            onClick={() => navigate("/dashboard")}
-          >
-            Dashboard
-          </button>
-          <h1 className="text-3xl font-bold">Blog Editor</h1>
+      
+      <main className="mx-auto max-w-7xl p-4 md:p-8">
+        {/* Header Actions Container */}
+        <div className="mb-8 flex flex-wrap items-center justify-between gap-4 border-b border-slate-800 pb-5">
+          <div className="flex items-center gap-4">
+            <button
+              className="rounded-xl border border-slate-800 bg-slate-900 px-4 py-2 text-sm font-medium text-slate-300 transition hover:bg-slate-800 hover:text-white"
+              onClick={() => navigate("/dashboard")}
+            >
+              ← Dashboard
+            </button>
+            <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-white to-slate-400 bg-clip-text text-transparent">
+              Blog Editor
+            </h1>
+          </div>
+          
           <button
             type="button"
-            onClick={() => setEventsPanelOpen(true)}
-            className="rounded-xl border border-cyan-400/40 bg-cyan-500/10 px-4 py-2 text-sm font-semibold text-cyan-200 transition hover:bg-cyan-500/20"
+            onClick={() => setEventsPanelOpen(!eventsPanelOpen)}
+            className={`rounded-xl border px-4 py-2 text-sm font-semibold transition duration-200 ${
+              eventsPanelOpen 
+                ? "border-sky-500/30 bg-sky-500/10 text-sky-400 hover:bg-sky-500/20" 
+                : "border-slate-800 bg-slate-900 text-slate-400 hover:bg-slate-800 hover:text-slate-200"
+            }`}
           >
-            Open current events
+            {eventsPanelOpen ? "Hide Current Events" : "Show Current Events"}
           </button>
         </div>
 
-        {success && <div className="mb-6 rounded-3xl bg-emerald-500/10 p-4 text-emerald-200">{success}</div>}
+        {success && <div className="mb-6 rounded-2xl border border-emerald-500/20 bg-emerald-500/10 p-4 text-emerald-400">{success}</div>}
+        {error && <div className="mb-6 rounded-2xl border border-red-500/20 bg-red-500/10 p-4 text-red-400">{error}</div>}
 
-        {error && <div className="mb-6 rounded-3xl bg-red-500/10 p-4 text-red-200">{error}</div>}
+        {/* Master Workspace Layout Grid */}
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-12 items-start">
+          
+          {/* Main Editing Column */}
+          <div className={`transition-all duration-300 ${eventsPanelOpen ? "lg:col-span-8" : "lg:col-span-12"}`}>
+            {step === "editor" && (
+              <form onSubmit={handlePublish} className="space-y-6">
+                
+                {/* Meta details header strip */}
+                <div className="rounded-2xl border border-slate-800 bg-slate-900/60 backdrop-blur p-5">
+                  <div className="grid gap-4 grid-cols-3 text-center md:text-left">
+                    <div>
+                      <h2 className="text-xs font-bold uppercase tracking-wider text-slate-500">Title</h2>
+                      <p className="text-base font-semibold text-slate-200 truncate">{details.title || "Untitled"}</p>
+                    </div>
+                    <div>
+                      <h2 className="text-xs font-bold uppercase tracking-wider text-slate-500">Topic</h2>
+                      <p className="text-base font-semibold text-slate-200 truncate">{details.topic || "None"}</p>
+                    </div>
+                    <div>
+                      <h2 className="text-xs font-bold uppercase tracking-wider text-slate-500">Age Restriction</h2>
+                      <p className="text-base font-semibold text-slate-300">{details.ageRestriction}</p>
+                    </div>
+                  </div>
+                </div>
 
-        {step === "editor" && (
-          <form onSubmit={handlePublish} className="space-y-6">
-            <div className="rounded-3xl border border-slate-700 bg-slate-900 p-6">
-              <div className="mb-4 text-sm text-gray-400">Blog details</div>
-              <div className="grid gap-4 md:grid-cols-3">
-                <div>
-                  <h2 className="text-sm uppercase text-slate-400">Title</h2>
-                  <p className="text-lg font-semibold text-white">{details.title || "Untitled"}</p>
-                </div>
-                <div>
-                  <h2 className="text-sm uppercase text-slate-400">Topic</h2>
-                  <p className="text-lg font-semibold text-white">{details.topic || "None"}</p>
-                </div>
-                <div>
-                  <h2 className="text-sm uppercase text-slate-400">Age restriction</h2>
-                  <p className="text-lg font-semibold text-white">{details.ageRestriction}</p>
-                </div>
-              </div>
-            </div>
+                {/* Core Rich Text Workspace Area */}
+                <div className="rounded-2xl border border-slate-800 bg-slate-900 overflow-hidden focus-within:border-sky-500/50 transition">
+                  {/* Toolbar Option Bar */}
+                  <div className="flex items-center gap-2 border-b border-slate-800 bg-slate-900/50 px-4 py-2">
+                    <span className="text-xs font-medium text-slate-500 mr-2">Insert Media:</span>
+                    <button
+                      type="button"
+                      onClick={() => setMediaModal({ isOpen: true, type: "image" })}
+                      className="rounded-lg bg-slate-800 px-3 py-1.5 text-xs font-medium text-slate-300 hover:bg-slate-700 hover:text-white transition"
+                    >
+                      📷 Image Link
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setMediaModal({ isOpen: true, type: "video" })}
+                      className="rounded-lg bg-slate-800 px-3 py-1.5 text-xs font-medium text-slate-300 hover:bg-slate-700 hover:text-white transition"
+                    >
+                      🎥 Video Link
+                    </button>
+                  </div>
 
-            <div className="rounded-3xl border border-slate-700 bg-slate-900 p-6">
-              <label className="mb-2 block text-sm font-medium text-gray-300">Write your blog</label>
-              <textarea
-                rows={18}
-                value={content}
-                onChange={(e) => setContent(e.target.value)}
-                className="w-full resize-none rounded-3xl border border-slate-700 bg-slate-950 px-4 py-4 text-white outline-none focus:border-sky-500"
-                placeholder="Start writing your story here..."
+                  <textarea
+                    ref={textareaRef}
+                    rows={16}
+                    value={content}
+                    onChange={(e) => setContent(e.target.value)}
+                    className="w-full resize-none bg-slate-950 px-5 py-4 text-slate-100 outline-none placeholder-slate-600 font-mono text-sm leading-relaxed"
+                    placeholder="Start writing your story here... (Markdown syntax is active for media objects)"
+                  />
+                </div>
+
+                {/* Footer Publisher Controls */}
+                <div className="flex flex-wrap items-center gap-4">
+                  <button
+                    type="button"
+                    className="rounded-xl border border-slate-800 bg-slate-900 px-5 py-2.5 text-sm font-medium text-slate-300 hover:bg-slate-800 transition"
+                    onClick={() => setShowDialog(true)}
+                  >
+                    Modify Details
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="rounded-xl bg-gradient-to-r from-sky-500 to-blue-600 px-6 py-2.5 text-sm font-semibold text-white shadow-lg shadow-sky-500/10 hover:from-sky-400 hover:to-blue-500 transition disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    {loading ? "Publishing..." : "Publish Blog"}
+                  </button>
+                </div>
+              </form>
+            )}
+          </div>
+
+          {/* Embedded Right Panel Ecosystem */}
+          {eventsPanelOpen && (
+            <div className="lg:col-span-4 rounded-2xl border border-slate-800 bg-slate-900/40 p-4">
+              <h3 className="text-sm font-bold text-slate-400 mb-4 tracking-wide uppercase px-2">Inspirations / Current Events</h3>
+              <CurrentEventsPanel
+                isOpen={eventsPanelOpen}
+                onOpen={() => setEventsPanelOpen(true)}
+                onClose={() => setEventsPanelOpen(false)}
+                country={selectedCountry}
+                onCountryChange={setSelectedCountry}
+                onRefresh={() => loadCurrentEvents(selectedCountry)}
+                loading={eventsLoading}
+                error={eventsError}
+                data={eventsData}
+                inlineLayout={true} // Add custom layout handling flag if supported natively inside your panel
               />
             </div>
+          )}
+        </div>
 
-            <div className="flex flex-wrap items-center gap-4">
-              <button
-                type="button"
-                className="rounded-full border border-slate-700 bg-slate-900 px-5 py-3 text-sm text-white hover:border-sky-500"
-                onClick={() => setShowDialog(true)}
-              >
-                Edit details
-              </button>
-              <button
-                type="submit"
-                disabled={loading}
-                className="rounded-full bg-sky-500 px-5 py-3 text-sm font-semibold text-white hover:bg-sky-400 disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                {loading ? "Publishing..." : "Publish Blog"}
-              </button>
+        {/* Media Injection Utility Modal */}
+        {mediaModal.isOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 px-4 backdrop-blur-xs">
+            <div className="w-full max-w-md rounded-2xl border border-slate-800 bg-slate-950 p-6 shadow-2xl">
+              <h3 className="text-lg font-bold text-white capitalize mb-2">Insert Link for {mediaModal.type}</h3>
+              <p className="text-xs text-slate-400 mb-4">Paste the direct hosted file URL source to embed inside the markdown content area.</p>
+              <form onSubmit={insertMediaTag} className="space-y-4">
+                <input
+                  type="url"
+                  required
+                  value={mediaUrl}
+                  onChange={(e) => setMediaUrl(e.target.value)}
+                  placeholder={`https://example.com/source-${mediaModal.type}.mp4`}
+                  className="w-full rounded-xl border border-slate-800 bg-slate-900 px-4 py-2.5 text-sm text-white outline-none focus:border-sky-500"
+                />
+                <div className="flex justify-end gap-3 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => { setMediaModal({ isOpen: false, type: "" }); setMediaUrl(""); }}
+                    className="rounded-xl bg-slate-900 px-4 py-2 text-xs font-semibold text-slate-400 hover:bg-slate-800"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="rounded-xl bg-sky-500 px-4 py-2 text-xs font-semibold text-white hover:bg-sky-400"
+                  >
+                    Insert to Editor
+                  </button>
+                </div>
+              </form>
             </div>
-          </form>
+          </div>
         )}
 
+        {/* Core Detail Setup Modal */}
         {showDialog && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4 py-8">
-            <div className="w-full max-w-2xl rounded-3xl border border-slate-700 bg-slate-950 p-8 shadow-2xl shadow-black/50">
-              <h2 className="mb-6 text-2xl font-bold">Enter blog details</h2>
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 px-4 backdrop-blur-xs">
+            <div className="w-full max-w-xl rounded-2xl border border-slate-800 bg-slate-950 p-6 md:p-8 shadow-2xl">
+              <h2 className="mb-6 text-2xl font-bold tracking-tight text-white">Enter blog details</h2>
               <form onSubmit={handleDetailsSubmit} className="space-y-5">
                 <div>
-                  <label className="mb-2 block text-sm font-medium text-gray-300">Title</label>
+                  <label className="mb-2 block text-sm font-medium text-slate-300">Title</label>
                   <input
                     type="text"
                     value={details.title}
                     onChange={(e) => setDetails({ ...details, title: e.target.value })}
-                    className="w-full rounded-3xl border border-slate-700 bg-slate-900 px-4 py-3 text-white outline-none focus:border-sky-500"
+                    className="w-full rounded-xl border border-slate-800 bg-slate-900 px-4 py-2.5 text-sm text-white outline-none focus:border-sky-500"
                     placeholder="Enter your blog title"
                   />
                 </div>
 
                 <div>
-                  <label className="mb-2 block text-sm font-medium text-gray-300">Topic</label>
+                  <label className="mb-2 block text-sm font-medium text-slate-300">Topic</label>
                   <input
                     type="text"
                     value={details.topic}
                     onChange={(e) => setDetails({ ...details, topic: e.target.value })}
-                    className="w-full rounded-3xl border border-slate-700 bg-slate-900 px-4 py-3 text-white outline-none focus:border-sky-500"
+                    className="w-full rounded-xl border border-slate-800 bg-slate-900 px-4 py-2.5 text-sm text-white outline-none focus:border-sky-500"
                     placeholder="Example: Travel, Food, Technology"
                   />
                 </div>
 
                 <div>
-                  <label className="mb-2 block text-sm font-medium text-gray-300">Age restriction</label>
+                  <label className="mb-2 block text-sm font-medium text-slate-300">Age Restriction</label>
                   <select
                     value={details.ageRestriction}
                     onChange={(e) => setDetails({ ...details, ageRestriction: e.target.value })}
-                    className="w-full rounded-3xl border border-slate-700 bg-slate-900 px-4 py-3 text-white outline-none focus:border-sky-500"
+                    className="w-full rounded-xl border border-slate-800 bg-slate-900 px-4 py-2.5 text-sm text-white outline-none focus:border-sky-500"
                   >
                     <option>All ages</option>
                     <option>13+</option>
@@ -289,19 +403,19 @@ const CreateBlog = () => {
                   </select>
                 </div>
 
-                <div className="flex flex-wrap gap-4 pt-4">
-                  <button
-                    type="submit"
-                    className="rounded-full bg-sky-500 px-5 py-3 text-sm font-semibold text-white hover:bg-sky-400"
-                  >
-                    Start writing
-                  </button>
+                <div className="flex flex-wrap gap-4 pt-4 justify-end">
                   <button
                     type="button"
-                    className="rounded-full border border-slate-700 bg-slate-900 px-5 py-3 text-sm text-white hover:border-sky-500"
+                    className="rounded-xl border border-slate-800 bg-slate-900 px-5 py-2.5 text-sm font-medium text-slate-400 hover:bg-slate-800 hover:text-white transition"
                     onClick={() => navigate("/dashboard")}
                   >
                     Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="rounded-xl bg-gradient-to-r from-sky-500 to-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-sky-500/10 hover:from-sky-400 hover:to-blue-500 transition"
+                  >
+                    Start writing
                   </button>
                 </div>
               </form>
@@ -309,18 +423,6 @@ const CreateBlog = () => {
           </div>
         )}
       </main>
-
-      <CurrentEventsPanel
-        isOpen={eventsPanelOpen}
-        onOpen={() => setEventsPanelOpen(true)}
-        onClose={() => setEventsPanelOpen(false)}
-        country={selectedCountry}
-        onCountryChange={setSelectedCountry}
-        onRefresh={() => loadCurrentEvents(selectedCountry)}
-        loading={eventsLoading}
-        error={eventsError}
-        data={eventsData}
-      />
     </div>
   );
 };
